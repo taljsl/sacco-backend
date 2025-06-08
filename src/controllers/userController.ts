@@ -197,6 +197,7 @@ export const loginUser: RequestHandler = async (
         verificationStatus: user.verificationStatus,
         isEmailVerified: user.isEmailVerified,
         createdAt: user.createdAt,
+        assignedRepresentatived: user.assignedRepresentative
       },
     });
   } catch (error) {
@@ -457,6 +458,7 @@ export const checkAuth: RequestHandler = async (
       verificationStatus: req.user.verificationStatus,
       isEmailVerified: req.user.isEmailVerified,
       createdAt: req.user.createdAt,
+      assignedRepresentative: req.user.assignedRepresentative,
     },
   });
 };

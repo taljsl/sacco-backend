@@ -22,7 +22,22 @@ router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 
 // Contact form route (public)
-router.post("/contact", submitContactForm);
+// Contact form route (public, but can use auth if available)
+router.post("/contact", (req, res, next) => {
+  // Try to authenticate, but don't require it
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer ")
+  ) {
+    protect(req, res, () => {
+      // If auth succeeds, continue with authenticated user
+      submitContactForm(req, res, next);
+    });
+  } else {
+    // If no auth or auth fails, continue without user
+    submitContactForm(req, res, next);
+  }
+});
 
 // Password reset routes (public)
 router.post("/forgot-password", forgotPassword);

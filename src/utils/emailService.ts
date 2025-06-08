@@ -109,7 +109,12 @@ export const sendUserNotificationEmail = async (
   userEmail: string,
   userName: string,
   status: "approved" | "rejected",
-  adminEmail?: string
+  adminEmail?: string,
+  representative?: {
+    name: string;
+    phone: string;
+    email: string;
+  }
 ) => {
   const transporter = createTransporter();
 
@@ -368,5 +373,86 @@ export const sendContactFormConfirmation = async (
   } catch (error) {
     console.error("Error sending contact form confirmation:", error);
     // Don't throw error here as it's not critical
+  }
+};
+
+export const sendContactFormToRecipient = async (
+  userEmail: string,
+  message: string,
+  userName?: string,
+  recipientEmail?: string,
+  recipientName?: string
+) => {
+  const transporter = createTransporter();
+  const finalRecipientEmail = recipientEmail || ADMIN_EMAIL;
+  const finalRecipientName = recipientName || "Admin";
+
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    to: finalRecipientEmail,
+    subject: `New Contact Form Message from ${userEmail}`,
+    html: `
+      <div style="max-width: 700px; margin: 0 auto; font-family: Arial, sans-serif; border: 1px solid #ddd; border-radius: 8px;">
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px 8px 0 0;">
+          <h2 style="color: #333; margin: 0;">New Contact Form Message</h2>
+          ${recipientEmail && recipientEmail !== ADMIN_EMAIL ? 
+            `<p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">This message was routed to you as the assigned representative.</p>` : 
+            ''
+          }
+        </div>
+        
+        <div style="padding: 30px;">
+          <div style="background-color: #e7f3ff; border: 1px solid #b6d7ff; border-radius: 5px; padding: 15px; margin-bottom: 25px;">
+            <strong>📧 New Message:</strong> Someone has reached out through the contact form.
+          </div>
+          
+          <h3>Contact Details:</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold; width: 120px;">From:</td>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">${userEmail}</td>
+            </tr>
+            ${
+              userName
+                ? `
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">Name:</td>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">${userName}</td>
+            </tr>
+            `
+                : ""
+            }
+            <tr>
+              <td style="padding: 8px; font-weight: bold;">Received:</td>
+              <td style="padding: 8px;">${new Date().toLocaleString()}</td>
+            </tr>
+          </table>
+
+          <h3>Message:</h3>
+          <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 20px; margin-bottom: 25px;">
+            <p style="margin: 0; white-space: pre-wrap; font-family: Arial, sans-serif; line-height: 1.5;">${message}</p>
+          </div>
+          
+          <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 25px;">
+            <p style="margin: 0;"><strong>Reply Instructions:</strong></p>
+            <p style="margin: 10px 0 0 0;">You can reply directly to this email to respond to ${userEmail}</p>
+          </div>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 0 0 8px 8px; font-size: 12px; color: #666;">
+          <p style="margin: 0;">This message was sent through the contact form on the Sacco Carpet website.</p>
+          <p style="margin: 5px 0 0 0;">Reply-To address: ${userEmail}</p>
+        </div>
+      </div>
+    `,
+    replyTo: userEmail, // Allow recipient to reply directly
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Contact form message sent to ${finalRecipientName} (${finalRecipientEmail}) successfully`);
+  } catch (error) {
+    console.error("Error sending contact form message:", error);
+    throw new Error("Failed to send contact form message");
   }
 };

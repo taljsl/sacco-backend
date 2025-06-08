@@ -19,6 +19,8 @@ export interface IUser extends Document {
   verifiedAt?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
+  assignedRepresentative?: Types.ObjectId;
+  isAdmin: boolean
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -100,6 +102,14 @@ const UserSchema: Schema = new Schema<IUser>({
   passwordResetExpires: {
     type: Date,
   },
+  assignedRepresentative: {
+    type: Schema.Types.ObjectId,
+    ref: 'Representative'
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 export default mongoose.model<IUser>("User", UserSchema);

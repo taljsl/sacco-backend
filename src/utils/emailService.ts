@@ -28,7 +28,7 @@ export const sendVerificationRequestToAdmin = async (
 
   const approveUrl = `${process.env.BACKEND_URL}/api/users/admin-verify?token=${verificationToken}&action=approve`;
   const rejectUrl = `${process.env.BACKEND_URL}/api/users/admin-verify?token=${verificationToken}&action=reject`;
-  const adminPanelUrl = `${process.env.FRONTEND_URL}/admin/pending-verifications`;
+  const adminPanelUrl = `${process.env.FRONTEND_URL}/admin/dashboard`;
 
   const mailOptions = {
     from: process.env.EMAIL_FROM || process.env.EMAIL_USER,

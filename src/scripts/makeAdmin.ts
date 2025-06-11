@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import mongoose from "mongoose";
-import User from "../src/models/User";
+import User from "../models/User";
 
 const makeAdmin = async (email: string) => {
   try {
